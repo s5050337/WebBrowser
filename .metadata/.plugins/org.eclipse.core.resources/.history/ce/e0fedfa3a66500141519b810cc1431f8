@@ -259,7 +259,9 @@ public class GuiWebBrowser {
 		threadLoad.start();
 	}
 
+	@SuppressWarnings("deprecation")
 	private void clickReload() {
+		threadLoad.stop();
 		threadLoad = new Thread(new Runnable() {
 			@Override
 			public void run() {

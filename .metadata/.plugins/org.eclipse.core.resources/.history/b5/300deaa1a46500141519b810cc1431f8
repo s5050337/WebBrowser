@@ -34,11 +34,11 @@ public class GuiTabs {
 		instance = this;
 		initLookAndFeel();
 		initGui();
-		addTab(new GuiWebBrowser(instance, jTabs.getTabCount(), "www.google.co.th"));
 		addTab(new GuiWebBrowser(instance, jTabs.getTabCount(), "www.facebook.com"));
-		addTab(new GuiWebBrowser(instance, jTabs.getTabCount(), "www.blognone.com"));
-		addTab(new GuiWebBrowser(instance, jTabs.getTabCount(), "www.youtube.com"));
-		addTab(new GuiWebBrowser(instance, jTabs.getTabCount(), "www.sritown.com"));
+		addTab(new GuiWebBrowser(instance, jTabs.getTabCount(), "www.facebook.com"));
+		addTab(new GuiWebBrowser(instance, jTabs.getTabCount(), "www.facebook.com"));
+		addTab(new GuiWebBrowser(instance, jTabs.getTabCount(), "www.facebook.com"));
+		addTab(new GuiWebBrowser(instance, jTabs.getTabCount(), "www.facebook.com"));
 	}
 
 	public void addTab(GuiWebBrowser gui) {

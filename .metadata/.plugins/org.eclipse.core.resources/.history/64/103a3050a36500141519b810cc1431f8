@@ -23,7 +23,7 @@ import com.teamdev.jxbrowser.chromium.events.StartLoadingEvent;
 
 public class GuiWebBrowser {
 
-	private String homePage = "http://www.google.co.th";
+	private String homePage = "http://www.arip.co.th";
 	private JTextField addressBar;
 	private JButton addressBtnEnter;
 	private JButton addressBtnBack;
@@ -53,16 +53,6 @@ public class GuiWebBrowser {
 		initTabTitle();
 		initBrowser();
 		initGui();
-	}
-	
-	public GuiWebBrowser(GuiTabs pgui, int ptabIndex, String url) {
-		gui = pgui;
-		tabIndex = ptabIndex;
-		initTabTitle();
-		initBrowser();
-		initGui();
-		browser.loadURL(url);
-		addressBar.setText(url);	
 	}
 
 	private void initTabTitle() {
@@ -108,23 +98,22 @@ public class GuiWebBrowser {
 		browser.addLoadListener(new LoadAdapter() {
 			@Override
 			public void onStartLoadingFrame(StartLoadingEvent event) {
-				final String url = event.getValidatedURL();
+				String url = event.getValidatedURL();
 				if(!url.equalsIgnoreCase("about:blank")) {
 					addressBar.setText(url);
+					gui.log(tabIndex, "GET URL : " + (url.length() > 50 ? url.substring(0, 40) + "..." : url));
 				}
 				if(event.isMainFrame()) {
 					handleUrl(url, false);
 					threadTitle = new Thread(new Runnable() {
 						@Override
 						public void run() {
-							gui.log(tabIndex, "GET URL : " + (url.length() > 50 ? url.substring(0, 40) + "..." : url));
 							while(browser.isLoading()) {
 								String title = browser.getTitle();
 								if(title.length() > 20)
 									title = title.substring(0, 20) + "...";
 								jlTitle.setText(" " + title + " ");
 							}
-							gui.log(tabIndex, "Finish URL : " + (url.length() > 50 ? url.substring(0, 40) + "..." : url));
 						}
 					});
 					threadTitle.start();
@@ -136,6 +125,7 @@ public class GuiWebBrowser {
 				String url = event.getValidatedURL();
 				if(!url.equalsIgnoreCase("about:blank")) {
 					addressBar.setText(url);
+					gui.log(tabIndex, "Finish URL : " + (url.length() > 50 ? url.substring(0, 40) + "..." : url));
 				}
 				if(event.isMainFrame()) {
 					handleUrl(url, false);

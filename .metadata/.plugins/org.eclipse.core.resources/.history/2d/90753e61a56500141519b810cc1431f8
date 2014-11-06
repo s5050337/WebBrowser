@@ -23,7 +23,7 @@ import com.teamdev.jxbrowser.chromium.events.StartLoadingEvent;
 
 public class GuiWebBrowser {
 
-	private String homePage = "http://www.google.co.th";
+	private String homePage = "http://www.arip.co.th";
 	private JTextField addressBar;
 	private JButton addressBtnEnter;
 	private JButton addressBtnBack;

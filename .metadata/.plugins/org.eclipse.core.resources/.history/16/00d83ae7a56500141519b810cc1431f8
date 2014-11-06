@@ -21,6 +21,7 @@ import com.teamdev.jxbrowser.chromium.events.FinishLoadingEvent;
 import com.teamdev.jxbrowser.chromium.events.LoadAdapter;
 import com.teamdev.jxbrowser.chromium.events.StartLoadingEvent;
 
+@SuppressWarnings("deprecation")
 public class GuiWebBrowser {
 
 	private String homePage = "http://www.google.co.th";
@@ -114,6 +115,7 @@ public class GuiWebBrowser {
 				}
 				if(event.isMainFrame()) {
 					handleUrl(url, false);
+					threadTitle.stop();
 					threadTitle = new Thread(new Runnable() {
 						@Override
 						public void run() {
@@ -244,6 +246,7 @@ public class GuiWebBrowser {
 	}
 
 	private void handleUrl(final String url, final boolean load) {
+		threadLoad.stop();
 		threadLoad = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -260,6 +263,7 @@ public class GuiWebBrowser {
 	}
 
 	private void clickReload() {
+		threadLoad.stop();
 		threadLoad = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -270,6 +274,7 @@ public class GuiWebBrowser {
 	}
 
 	private void clickHome() {
+		threadLoad.stop();
 		threadLoad = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -280,6 +285,7 @@ public class GuiWebBrowser {
 	}
 
 	private void clickBack() {
+		threadLoad.stop();
 		threadLoad = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -290,6 +296,7 @@ public class GuiWebBrowser {
 	}
 
 	private void clickForword() {
+		threadLoad.stop();
 		threadLoad = new Thread(new Runnable() {
 			@Override
 			public void run() {

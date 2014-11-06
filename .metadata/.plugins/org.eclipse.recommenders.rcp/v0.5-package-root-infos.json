@@ -169,17 +169,17 @@
     "javaRuntime": false
   },
   {
-    "symbolicName": "jre",
+    "symbolicName": "license",
     "version": {
-      "major": 1,
-      "minor": 0,
-      "micro": 0,
+      "major": -1,
+      "minor": -1,
+      "micro": -1,
       "qualifier": ""
     },
-    "jarFileFingerprint": "6aaed6bab70e4040bbe51177cd2afad22b12e107",
-    "jarFileModificationDate": "2014-09-03T15:06:49.558+07:00",
-    "location": "C:\\Program Files\\Java\\jre7\\lib\\jfr.jar",
-    "javaRuntime": true
+    "jarFileFingerprint": "01cba1f9520c237355061e509e8b644af344d87b",
+    "jarFileModificationDate": "2014-10-29T01:41:47.966+07:00",
+    "location": "C:\\Users\\LewTsu-Server\\Desktop\\Eclipse\\Http\\Web Browser\\WebBrowserTabs\\lib\\license.jar",
+    "javaRuntime": false
   },
   {
     "symbolicName": "jre",
@@ -195,17 +195,17 @@
     "javaRuntime": true
   },
   {
-    "symbolicName": "license",
+    "symbolicName": "jre",
     "version": {
-      "major": -1,
-      "minor": -1,
-      "micro": -1,
+      "major": 1,
+      "minor": 0,
+      "micro": 0,
       "qualifier": ""
     },
-    "jarFileFingerprint": "01cba1f9520c237355061e509e8b644af344d87b",
-    "jarFileModificationDate": "2014-10-29T01:41:47.966+07:00",
-    "location": "C:\\Users\\LewTsu-Server\\Desktop\\Eclipse\\Http\\Web Browser\\WebBrowserTabs\\lib\\license.jar",
-    "javaRuntime": false
+    "jarFileFingerprint": "6aaed6bab70e4040bbe51177cd2afad22b12e107",
+    "jarFileModificationDate": "2014-09-03T15:06:49.558+07:00",
+    "location": "C:\\Program Files\\Java\\jre7\\lib\\jfr.jar",
+    "javaRuntime": true
   },
   {
     "symbolicName": "jxbrowser-win-4.6",

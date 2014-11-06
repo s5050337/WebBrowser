@@ -23,7 +23,7 @@ import com.teamdev.jxbrowser.chromium.events.StartLoadingEvent;
 
 public class GuiWebBrowser {
 
-	private String homePage = "http://www.google.co.th";
+	private String homePage = "http://www.arip.co.th";
 	private JTextField addressBar;
 	private JButton addressBtnEnter;
 	private JButton addressBtnBack;
@@ -124,7 +124,6 @@ public class GuiWebBrowser {
 									title = title.substring(0, 20) + "...";
 								jlTitle.setText(" " + title + " ");
 							}
-							gui.log(tabIndex, "Finish URL : " + (url.length() > 50 ? url.substring(0, 40) + "..." : url));
 						}
 					});
 					threadTitle.start();
@@ -136,6 +135,7 @@ public class GuiWebBrowser {
 				String url = event.getValidatedURL();
 				if(!url.equalsIgnoreCase("about:blank")) {
 					addressBar.setText(url);
+					gui.log(tabIndex, "Finish URL : " + (url.length() > 50 ? url.substring(0, 40) + "..." : url));
 				}
 				if(event.isMainFrame()) {
 					handleUrl(url, false);

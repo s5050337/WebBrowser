@@ -38,7 +38,6 @@ public class GuiTabs {
 		addTab(new GuiWebBrowser(instance, jTabs.getTabCount(), "www.facebook.com"));
 		addTab(new GuiWebBrowser(instance, jTabs.getTabCount(), "www.blognone.com"));
 		addTab(new GuiWebBrowser(instance, jTabs.getTabCount(), "www.youtube.com"));
-		addTab(new GuiWebBrowser(instance, jTabs.getTabCount(), "www.sritown.com"));
 	}
 
 	public void addTab(GuiWebBrowser gui) {

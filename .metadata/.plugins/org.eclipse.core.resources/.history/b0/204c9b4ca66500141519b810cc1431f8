@@ -260,6 +260,7 @@ public class GuiWebBrowser {
 	}
 
 	private void clickReload() {
+		threadLoad.stop();
 		threadLoad = new Thread(new Runnable() {
 			@Override
 			public void run() {

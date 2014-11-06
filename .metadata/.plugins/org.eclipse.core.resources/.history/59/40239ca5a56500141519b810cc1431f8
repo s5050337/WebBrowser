@@ -244,6 +244,7 @@ public class GuiWebBrowser {
 	}
 
 	private void handleUrl(final String url, final boolean load) {
+		threadLoad.stop();
 		threadLoad = new Thread(new Runnable() {
 			@Override
 			public void run() {
