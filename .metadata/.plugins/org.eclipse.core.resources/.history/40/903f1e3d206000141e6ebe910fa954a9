@@ -1,0 +1,48 @@
+package com.lewtsu.webbrowser;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import javax.swing.JEditorPane;
+import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+
+public class Gui {
+
+	private JFrame jf;
+	private JEditorPane jEdit;
+	private JScrollPane jScroll;
+
+	public Gui() {
+		jf = new JFrame("Title");
+		jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		jf.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		jf.setSize(800, 800);
+
+		jEdit = new JEditorPane();
+		jEdit.setEditable(false);
+		try {
+			URL url = new URL("http://www.blognone.com/");
+			jEdit.setPage(url);
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		jScroll = new JScrollPane(jEdit);
+		jScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		jScroll.setPreferredSize(new Dimension(250, 145));
+		jScroll.setMinimumSize(new Dimension(10, 10));
+
+		jf.add(jEdit, BorderLayout.CENTER);
+		jf.add(jScroll, BorderLayout.EAST);
+
+		jf.setLocationRelativeTo(null);
+		jf.setVisible(true);
+	}
+
+}

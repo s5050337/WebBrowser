@@ -1,0 +1,41 @@
+package com.lewtsu.webbrowser;
+
+public class Act extends Thread {
+	
+	
+	
+	public Act(GuiWebBrowser gui) {
+		
+	}
+	
+	@Override
+	public void run() {
+		
+	}
+
+	private void handleUrl(String url, boolean load) {
+		url = url.toLowerCase();
+		if(!(url.startsWith("http://") || url.startsWith("https://")))
+			url = "http://" + url;
+		if(load)
+			browser.loadURL(url);
+		addressBar.setText(url);
+	}
+
+	private void clickReload() {
+		browser.reload();
+	}
+
+	private void clickHome() {
+		browser.loadURL(homePage);
+	}
+	
+	private void clickBack() {
+		browser.goToIndex(browser.getCurrentNavigationEntryIndex() - 1);
+	}
+	
+	private void clickForword() {
+		browser.goToIndex(browser.getCurrentNavigationEntryIndex() + 1);
+	}
+	
+}

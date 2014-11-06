@@ -1,0 +1,99 @@
+package com.lewtsu.webbrowser;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import java.awt.Font;
+import java.awt.Color;
+
+public class GuiWebBrowser {
+
+	private JFrame jFrame;
+	private JTextField addressBar;
+	private JButton addressBtnEnter;
+	private JButton addressBtnBack;
+	private JLabel labelUrl;
+	private List<String> history = new LinkedList<String>();
+
+	public GuiWebBrowser() {
+		jFrame = new JFrame();
+		jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		jFrame.setBounds(0, 0, 800, 800);
+		//jFrame.getContentPane().setLayout(null);
+		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+		jFrame.setLocation((d.width - jFrame.getWidth()) / 2, (d.height - jFrame.getHeight()) / 2);
+		
+        labelUrl = new JLabel(" URL: ");
+        labelUrl.setFont(new Font("Tahoma", Font.PLAIN, 24));
+		
+		addressBar = new JTextField();
+		addressBar.setForeground(Color.BLACK);
+		addressBar.setFont(new Font("Tahoma", Font.PLAIN, 24));
+		
+        addressBar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	handleUrl(addressBar.getText());
+            }
+        });
+        
+        addressBtnEnter = new JButton("Enter");
+        addressBtnEnter.setFont(new Font("Tahoma", Font.PLAIN, 20));
+        addressBtnEnter.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				handleUrl(addressBar.getText());
+			}
+        });
+        
+        addressBtnBack = new JButton("Back");
+        addressBtnBack.setFont(new Font("Tahoma", Font.PLAIN, 20));
+        addressBtnBack.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(history.size() < 1) {
+					return;
+				}
+				
+				handleUrl(history.get(history.size() - 1));
+				//browser.loadURL(history.get(history.size() - 1));
+			}
+        });
+
+        JPanel urlPane = new JPanel(new BorderLayout());
+        urlPane.add(labelUrl, BorderLayout.WEST);
+        urlPane.add(addressBar, BorderLayout.CENTER);
+        
+        JPanel addressPane = new JPanel(new BorderLayout());
+        addressPane.add(addressBtnBack, BorderLayout.WEST);
+        addressPane.add(addressBtnEnter, BorderLayout.EAST);
+        addressPane.add(urlPane, BorderLayout.CENTER);
+        
+        jFrame.getContentPane().add(addressPane, BorderLayout.NORTH);
+        //jFrame.add(browser.getView().getComponent(), BorderLayout.CENTER);
+        jFrame.setLocationRelativeTo(null);
+		
+	}
+	
+	private void handleUrl(String urlweb) {
+		urlweb = urlweb.toLowerCase();
+		if(!urlweb.startsWith("http://"))
+			urlweb = "http://" + urlweb;
+		//browser.loadURL(url);
+	}
+
+	public void setVisable(boolean visable) {
+		jFrame.setVisible(visable);
+	}
+
+}

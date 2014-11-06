@@ -1,0 +1,302 @@
+package com.lewtsu.webbrowser;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import com.teamdev.jxbrowser.chromium.Browser;
+import com.teamdev.jxbrowser.chromium.BrowserFactory;
+import com.teamdev.jxbrowser.chromium.events.FinishLoadingEvent;
+import com.teamdev.jxbrowser.chromium.events.LoadAdapter;
+import com.teamdev.jxbrowser.chromium.events.StartLoadingEvent;
+
+public class GuiWebBrowser {
+
+	private String homePage = "http://www.blognone.com";
+	private JTextField addressBar;
+	private JButton addressBtnEnter;
+	private JButton addressBtnBack;
+	private JButton addressBtnForward;
+	private JButton addressBtnHome;
+	private JButton addressBtnReload;
+	private JButton addressBtnPlus;
+
+	private Browser browser;
+	
+	private JPanel jPanel;
+	private int tabIndex;
+	
+	private JPanel jPanelTitle;
+	private JLabel jlTitle;
+	private JLabel jlClose;
+	
+	private Thread threadLoad;
+	private Thread threadTitle;
+	
+	private GuiTabs gui;
+	
+	
+	public GuiWebBrowser(GuiTabs pgui, int ptabIndex) {
+		gui = pgui;
+		tabIndex = ptabIndex;
+		initTabTitle();
+		initBrowser();
+		initGui();
+	}
+
+	private void initTabTitle() {
+		jPanelTitle = new JPanel(new BorderLayout());
+		jlTitle = new JLabel("about:blank");
+		jlTitle.setFont((new Font("Tahoma", Font.PLAIN, 32)));
+		jlTitle.setForeground(Color.MAGENTA);
+		jlClose = new JLabel();
+		jlClose.setIcon(new ImageIcon(getClass().getResource("/closetab.png")));
+		jlClose.addMouseListener(new MouseListener() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				gui.log("Close Tab");
+				gui.removeTab(tabIndex);
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+				
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+				
+			}
+		});
+		jPanelTitle.add(jlTitle, BorderLayout.CENTER);
+		jPanelTitle.add(jlClose, BorderLayout.EAST);
+	}
+
+	private void initBrowser() {
+		browser = BrowserFactory.create();
+		browser.addLoadListener(new LoadAdapter() {
+			@Override
+			public void onStartLoadingFrame(StartLoadingEvent event) {
+				String url = event.getValidatedURL();
+				if(!url.equalsIgnoreCase("about:blank"))
+					addressBar.setText(url);
+				gui.log(tabIndex, "GET DATA URL : " + (url.length() > 50 ? url.substring(0, 50) + "..." : url));
+				if(event.isMainFrame()) {
+					handleUrl(url, false);
+					threadTitle = new Thread(new Runnable() {
+						@Override
+						public void run() {
+							while(browser.isLoading()) {
+								String title = browser.getTitle();
+								if(title.length() > 20)
+									title = title.substring(0, 20) + "...";
+								jlTitle.setText(title + "   ");
+							}
+							gui.log(tabIndex, "Finish");
+						}
+					});
+					threadTitle.start();
+				}
+			}
+			
+			@Override
+			public void onFinishLoadingFrame(FinishLoadingEvent event) {
+				String url = event.getValidatedURL();
+				if(!url.equalsIgnoreCase("about:blank"))
+					addressBar.setText(url);
+				if(event.isMainFrame()) {
+					handleUrl(url, false);
+				}
+			}
+		});
+	}
+
+	private void initGui() {
+		jPanel = new JPanel(new BorderLayout());
+		addressBar = new JTextField();
+		addressBar.setForeground(Color.BLUE);
+		addressBar.setFont(new Font("Tahoma", Font.PLAIN, 24));
+		addressBar.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				handleUrl(addressBar.getText(), true);
+			}
+		});
+		addressBtnEnter = new JButton();
+		addressBtnEnter.setToolTipText("Enter Site");
+		addressBtnEnter.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		addressBtnEnter.setIcon(new ImageIcon(getClass().getResource("/enter.png")));
+		addressBtnEnter.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				handleUrl(addressBar.getText(), true);
+			}
+		});
+		addressBtnBack = new JButton();
+		addressBtnBack.setToolTipText("Back Site");
+		addressBtnBack.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		addressBtnBack.setIcon(new ImageIcon(getClass().getResource("/back.png")));
+		addressBtnBack.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				clickBack();
+			}
+		});
+		addressBtnForward = new JButton();
+		addressBtnForward.setToolTipText("Forward Site");
+		addressBtnForward.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		addressBtnForward.setIcon(new ImageIcon(getClass().getResource("/forward.png")));
+		addressBtnForward.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				clickForword();
+			}
+		});
+		addressBtnHome = new JButton();
+		addressBtnHome.setToolTipText("Go To Home Site");
+		addressBtnHome.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		addressBtnHome.setIcon(new ImageIcon(getClass().getResource("/home.png")));
+		addressBtnHome.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				clickHome();
+			}
+		});
+		addressBtnReload = new JButton();
+		addressBtnReload.setToolTipText("Reload Site");
+		addressBtnReload.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		addressBtnReload.setIcon(new ImageIcon(getClass().getResource("/reload.png")));
+		addressBtnReload.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				clickReload();
+			}
+		});
+		addressBtnPlus = new JButton();
+		addressBtnPlus.setToolTipText("New Tab");
+		addressBtnPlus.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		addressBtnPlus.setIcon(new ImageIcon(getClass().getResource("/opentab.png")));
+		addressBtnPlus.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int index =  gui.getTabs().getTabCount();
+				gui.log("New Tab");
+				gui.addTab(new GuiWebBrowser(gui, index));
+			}
+		});
+		
+		JPanel urlPane = new JPanel(new BorderLayout());
+		urlPane.add(addressBtnPlus, BorderLayout.WEST);
+		urlPane.add(addressBar, BorderLayout.CENTER);
+		
+		JPanel btnBFHPane = new JPanel(new BorderLayout());
+		btnBFHPane.add(addressBtnBack, BorderLayout.WEST);
+		btnBFHPane.add(addressBtnForward, BorderLayout.CENTER);
+		btnBFHPane.add(addressBtnHome, BorderLayout.EAST);
+		
+		JPanel btnERPane = new JPanel(new BorderLayout());
+		btnERPane.add(addressBtnEnter, BorderLayout.WEST);
+		btnERPane.add(addressBtnReload, BorderLayout.CENTER);
+		
+		JPanel addressPane = new JPanel(new BorderLayout());
+		addressPane.add(btnBFHPane, BorderLayout.WEST);
+		addressPane.add(btnERPane, BorderLayout.EAST);
+		addressPane.add(urlPane, BorderLayout.CENTER);
+		
+		jPanel.add(addressPane, BorderLayout.NORTH);
+		jPanel.add(browser.getView().getComponent(), BorderLayout.CENTER);
+		
+		browser.loadURL("http://about:blank");
+		addressBar.setText("http://about:blank");	
+	}
+
+	private void handleUrl(final String url, final boolean load) {
+		threadLoad = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				String newUrl = url.toLowerCase();
+				if(!(newUrl.startsWith("http://") || newUrl.startsWith("https://")))
+					newUrl = "http://" + url;
+				if(load) {
+					browser.loadURL(newUrl);
+				}
+				addressBar.setText(newUrl);	
+			}
+		});
+		threadLoad.start();
+	}
+
+	private void clickReload() {
+		threadLoad = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				browser.reload();	
+			}
+		});
+		threadLoad.start();
+	}
+
+	private void clickHome() {
+		threadLoad = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				browser.loadURL(homePage);
+			}
+		});
+		threadLoad.start();
+	}
+	
+	private void clickBack() {
+		threadLoad = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				browser.goToIndex(browser.getCurrentNavigationEntryIndex() - 1);
+			}
+		});
+		threadLoad.start();
+	}
+	
+	private void clickForword() {
+		threadLoad = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				browser.goToIndex(browser.getCurrentNavigationEntryIndex() + 1);
+			}
+		});
+		threadLoad.start();
+	}
+	
+	public Component getJPanel() {
+		return jPanel;
+	}
+
+	public void setIndex(int index) {
+		tabIndex = index;
+	}
+
+	public void setTabs() {
+		gui.getTabs().setTabComponentAt(tabIndex, jPanelTitle);
+	}
+
+}
