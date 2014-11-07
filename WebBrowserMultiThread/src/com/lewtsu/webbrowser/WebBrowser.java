@@ -7,6 +7,10 @@ import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowStateListener;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -57,6 +61,33 @@ public class WebBrowser {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
+		jFrame.addComponentListener(new ComponentListener() {
+			@Override
+			public void componentHidden(ComponentEvent arg0) {
+				
+			}
+
+			@Override
+			public void componentMoved(ComponentEvent arg0) {
+				
+			}
+
+			@Override
+			public void componentResized(ComponentEvent arg0) {
+				setSolution();
+			}
+
+			@Override
+			public void componentShown(ComponentEvent arg0) {
+				
+			}
+		});
+		jFrame.addWindowStateListener(new WindowStateListener() {
+			@Override
+			public void windowStateChanged(WindowEvent arg0) {
+				setSolution();
+			}
+		});
 		btnEnter = new JButton();
 		btnEnter.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		btnEnter.setIcon(new ImageIcon(getClass().getResource("/enter.png")));
