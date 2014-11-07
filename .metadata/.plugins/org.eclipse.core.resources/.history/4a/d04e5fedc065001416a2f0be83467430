@@ -1,0 +1,5 @@
+package com.lewtsu.webbrowser;
+
+public class AAAA extends Thread {
+
+}

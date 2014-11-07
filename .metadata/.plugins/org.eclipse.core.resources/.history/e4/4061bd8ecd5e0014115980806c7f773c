@@ -1,0 +1,17 @@
+package com.lewtsu.webbrowser;
+
+import com.teamdev.jxbrowser.chromium.Browser;
+import com.teamdev.jxbrowser.chromium.BrowserFactory;
+
+public class WebBrowser {
+
+	public static void main(String[] args) {
+		final Browser browser = BrowserFactory.create();
+		
+		GuiWebBrowser guiWeb = new GuiWebBrowser();
+		guiWeb.setVisable(true);
+		
+	
+	}
+	
+}

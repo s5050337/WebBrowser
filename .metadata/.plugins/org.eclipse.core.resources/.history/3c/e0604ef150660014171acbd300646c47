@@ -1,0 +1,442 @@
+package com.lewtsu.webbrowser;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.UIManager;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
+
+import com.teamdev.jxbrowser.chromium.Browser;
+import com.teamdev.jxbrowser.chromium.BrowserContext;
+import com.teamdev.jxbrowser.chromium.BrowserFactory;
+import com.teamdev.jxbrowser.chromium.DefaultNetworkDelegate;
+import com.teamdev.jxbrowser.chromium.HeadersReceivedParams;
+import com.teamdev.jxbrowser.chromium.RequestCompletedParams;
+import com.teamdev.jxbrowser.chromium.events.FinishLoadingEvent;
+import com.teamdev.jxbrowser.chromium.events.LoadAdapter;
+import com.teamdev.jxbrowser.chromium.events.StartLoadingEvent;
+
+public class GuiWebBrowser {
+
+	private String homePage = "http://www.google.com";
+	private JFrame jFrame;
+	private JButton addressBtnEnter;
+
+	private String t1 = "Thread 1";
+	private Color ct1 = Color.RED;
+	private JTextField addressBar1;
+	private JButton addressBtnBack1;
+	private JButton addressBtnForword1;
+	private JButton addressBtnHome1;
+	private JButton addressBtnReload1;
+	private JLabel labelUrl1;
+	private Browser browser1;
+	private Thread thread1;
+
+	private String t2 = "Thread 2";
+	private Color ct2 = Color.BLUE;
+	private JTextField addressBar2;
+	private JButton addressBtnBack2;
+	private JButton addressBtnForword2;
+	private JButton addressBtnHome2;
+	private JButton addressBtnReload2;
+	private JLabel labelUrl2;
+	private Browser browser2;
+	private Thread thread2;
+
+	private JTextPane log1;
+	private JTextPane log2;
+
+	public GuiWebBrowser() {
+		initLookAndFeel();
+		initBrowser();
+		initGui();
+		initThread();
+	}
+
+	private void initThread() {
+		thread1 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while(true) {
+					try {
+						Thread.sleep(3000L);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					if(browser1.isLoading()) {
+						log(t1, "Running...", ct1);
+					}
+				}
+			}
+		});
+		thread1.start();
+		thread2 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while(true) {
+					try {
+						Thread.sleep(3000L);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					if(browser2.isLoading()) {
+						log(t2, "Running...", ct2);
+					}
+				}
+			}
+		});
+		thread2.start();
+	}
+
+	private void initBrowser() {
+		BrowserContext browserContext1 = BrowserContext.defaultContext();
+		browserContext1.setNetworkDelegate(new DefaultNetworkDelegate() {
+			@Override
+			public void onHeadersReceived(HeadersReceivedParams params) {
+				if(params.getURL().equalsIgnoreCase(addressBar1.getText())) {
+					Map<String, String> map = params.getHeaders().getHeaders();
+					for(Entry<String, String> m : map.entrySet()) {
+						log(t1, m.getKey() + ": " + m.getValue(), ct1);
+					}
+				}
+
+				if(params.getURL().equalsIgnoreCase(addressBar2.getText())) {
+					Map<String, String> map = params.getHeaders().getHeaders();
+					for(Entry<String, String> m : map.entrySet()) {
+						log(t2, m.getKey() + ": " + m.getValue(), ct2);
+					}
+				}
+			}
+			@Override
+			public void onCompleted(RequestCompletedParams params)  {
+
+			}
+		});
+
+		browser1 = BrowserFactory.create(browserContext1);
+		browser1.addLoadListener(new LoadAdapter() {
+			@Override
+			public void onStartLoadingFrame(StartLoadingEvent event) {
+				if(event.isMainFrame()) {
+					String url = event.getValidatedURL();
+					if(event.getBrowser() == browser1)
+						log(t1, "GET URL: " + url, ct1);
+					if(event.getBrowser() == browser2)
+						log(t2, "GET URL: " + url, ct2);
+					addressBar1.setText(url);
+				}
+			}
+			@Override
+			public void onFinishLoadingFrame(FinishLoadingEvent event) {
+				if(event.isMainFrame()) {
+					String url = event.getValidatedURL();
+					if(event.getBrowser() == browser1)
+						log(t1, "FINISH", ct1);
+					if(event.getBrowser() == browser2)
+						log(t2, "FINISH", ct2);
+					addressBar1.setText(url);
+				}
+			}
+		});
+
+		browser2 = BrowserFactory.create(browserContext1);
+		browser2.addLoadListener(new LoadAdapter() {
+			@Override
+			public void onStartLoadingFrame(StartLoadingEvent event) {
+				if(event.isMainFrame()) {
+					String url = event.getValidatedURL();
+					if(event.getBrowser() == browser1)
+						log(t1, "GET URL: " + url, ct1);
+					if(event.getBrowser() == browser2)
+						log(t2, "GET URL: " + url, ct2);
+					addressBar2.setText(url);
+				}
+			}
+			@Override
+			public void onFinishLoadingFrame(FinishLoadingEvent event) {
+				if(event.isMainFrame()) {
+					String url = event.getValidatedURL();
+					if(event.getBrowser() == browser1)
+						log(t1, "FINISH", ct1);
+					if(event.getBrowser() == browser2)
+						log(t2, "FINISH", ct2);
+					addressBar2.setText(url);
+				}
+			}
+		});
+	}
+
+	private void initGui() {
+		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+		jFrame = new JFrame();
+		jFrame.setTitle("นายธีระวัฒน์ ธีระวัฒนสุข s5050337@kmitl.ac.th - Java Web Browser (Network Programming Class Assignment)");
+		jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		jFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		jFrame.setSize(d);
+
+		Dimension dTop = new Dimension(jFrame.getWidth() / 3, 80);
+		Dimension dDown = new Dimension(jFrame.getWidth() / 2, jFrame.getHeight() / 2);
+		Dimension dCenter = new Dimension(jFrame.getWidth() / 2 , jFrame.getHeight() / 2);
+
+		try {
+			jFrame.setIconImage(ImageIO.read(getClass().getResourceAsStream("/favicon.png")));
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
+		labelUrl1 = new JLabel(" URL: ");
+		labelUrl1.setFont(new Font("Tahoma", Font.PLAIN, 24));
+		labelUrl1.setForeground(Color.BLUE);
+
+		labelUrl2 = new JLabel(" URL: ");
+		labelUrl2.setFont(new Font("Tahoma", Font.PLAIN, 24));
+		labelUrl2.setForeground(Color.BLUE);
+
+		addressBar1 = new JTextField();
+		addressBar1.setForeground(Color.BLUE);
+		addressBar1.setFont(new Font("Tahoma", Font.PLAIN, 24));
+
+		addressBar2 = new JTextField();
+		addressBar2.setForeground(Color.BLUE);
+		addressBar2.setFont(new Font("Tahoma", Font.PLAIN, 24));
+
+		addressBtnEnter = new JButton();
+		addressBtnEnter.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		addressBtnEnter.setIcon(new ImageIcon(getClass().getResource("/enter.png")));
+		addressBtnEnter.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				handleUrl(browser1, addressBar1, addressBar1.getText());
+				handleUrl(browser2, addressBar2, addressBar2.getText());
+			}
+		});
+
+		addressBtnBack1 = new JButton();
+		addressBtnBack1.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		addressBtnBack1.setIcon(new ImageIcon(getClass().getResource("/back.png")));
+		addressBtnBack1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				clickBack(browser1);
+			}
+		});
+
+		addressBtnBack2 = new JButton();
+		addressBtnBack2.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		addressBtnBack2.setIcon(new ImageIcon(getClass().getResource("/back.png")));
+		addressBtnBack2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				clickBack(browser2);
+			}
+		});
+
+		addressBtnForword1 = new JButton();
+		addressBtnForword1.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		addressBtnForword1.setIcon(new ImageIcon(getClass().getResource("/forward.png")));
+		addressBtnForword1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				clickForword(browser1);
+			}
+		});
+
+		addressBtnForword2 = new JButton();
+		addressBtnForword2.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		addressBtnForword2.setIcon(new ImageIcon(getClass().getResource("/forward.png")));
+		addressBtnForword2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				clickForword(browser2);
+			}
+		});
+
+		addressBtnHome1 = new JButton();
+		addressBtnHome1.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		addressBtnHome1.setIcon(new ImageIcon(getClass().getResource("/home.png")));
+		addressBtnHome1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				clickHome(browser1);
+			}
+		});
+
+		addressBtnHome2 = new JButton();
+		addressBtnHome2.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		addressBtnHome2.setIcon(new ImageIcon(getClass().getResource("/home.png")));
+		addressBtnHome2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				clickHome(browser2);
+			}
+		});
+
+		addressBtnReload1 = new JButton();
+		addressBtnReload1.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		addressBtnReload1.setIcon(new ImageIcon(getClass().getResource("/reload.png")));
+		addressBtnReload1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				clickReload(browser1);
+			}
+		});
+
+		addressBtnReload2 = new JButton();
+		addressBtnReload2.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		addressBtnReload2.setIcon(new ImageIcon(getClass().getResource("/reload.png")));
+		addressBtnReload2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				clickReload(browser2);
+			}
+		});
+
+		log1 = new JTextPane();
+		log1.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		log1.setEditable(false);
+		
+		log2 = new JTextPane();
+		log2.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		log2.setEditable(false);
+
+		JScrollPane js1 = new JScrollPane(log1);
+		js1.setPreferredSize(dDown);
+		js1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+		js1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		
+		JScrollPane js2 = new JScrollPane(log1);
+		js2.setPreferredSize(dDown);
+		js2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+		js2.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+		browser1.getView().getComponent().setSize(dCenter);
+		browser1.getView().getComponent().setPreferredSize(dCenter);
+		browser2.getView().getComponent().setSize(dCenter);
+		browser2.getView().getComponent().setPreferredSize(dCenter);
+
+		JPanel jp1 = new JPanel();
+		jp1.add(addressBtnBack1);
+		jp1.add(addressBtnForword1);
+		jp1.add(addressBtnHome1);
+		jp1.add(addressBtnReload1);
+		jp1.setSize(dTop);
+		jp1.setPreferredSize(dTop);
+
+		JPanel jp2 = new JPanel();
+		jp2.add(addressBtnBack2);
+		jp2.add(addressBtnForword2);
+		jp2.add(addressBtnHome2);
+		jp2.add(addressBtnReload2);
+		jp2.setSize(dTop);
+		jp2.setPreferredSize(dTop);
+
+		JPanel jp3 = new JPanel(new BorderLayout());
+		jp3.add(jp1, BorderLayout.NORTH);
+		jp3.add(addressBar1, BorderLayout.CENTER);
+
+		JPanel jp4 = new JPanel(new BorderLayout());
+		jp4.add(jp2, BorderLayout.NORTH);
+		jp4.add(addressBar2, BorderLayout.CENTER);
+
+		JPanel jp5 = new JPanel();
+		jp5.add(jp3);
+		jp5.add(addressBtnEnter);
+		jp5.add(jp4);
+
+		JPanel jp6 = new JPanel(new BorderLayout());
+		jp6.add(browser1.getView().getComponent(), BorderLayout.WEST);
+		jp6.add(browser2.getView().getComponent(), BorderLayout.CENTER);
+
+		JPanel jp7 = new JPanel(new BorderLayout());
+		jp7.add(js1, BorderLayout.WEST);
+		jp7.add(js1, BorderLayout.CENTER);
+
+		jFrame.add(jp5, BorderLayout.NORTH);
+		jFrame.add(jp6, BorderLayout.CENTER);
+		jFrame.add(js1, BorderLayout.SOUTH);
+		jFrame.setLocationRelativeTo(null);
+
+		handleUrl(browser1, addressBar1, homePage);
+		handleUrl(browser2, addressBar2, homePage);
+
+	}
+
+	private void initLookAndFeel() {
+		try {
+			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+			UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+		} catch(Exception e){
+			e.printStackTrace();
+		}		
+	}
+
+	private void handleUrl(Browser browser, JTextField addressbar, String url) {
+		if(browser == browser1)
+			log(t1, "START", ct1);
+		if(browser == browser2)
+			log(t2, "START", ct2);
+		url = url.toLowerCase();
+		if(!(url.startsWith("http://") || url.startsWith("https://")))
+			url = "http://" + url;
+		browser.loadURL(url);
+		addressbar.setText(url);
+	}
+
+	private void clickReload(Browser browser) {
+		browser.reload();
+	}
+
+	private void clickHome(Browser browser) {
+		browser.loadURL(homePage);
+	}
+
+	private void clickBack(Browser browser) {
+		browser.goToIndex(browser.getCurrentNavigationEntryIndex() - 1);
+	}
+
+	private void clickForword(Browser browser) {
+		browser.goToIndex(browser.getCurrentNavigationEntryIndex() + 1);
+	}
+
+	private void log(String threadName, String str, Color c) {
+		StyleContext sc = StyleContext.getDefaultStyleContext();
+		AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY,  StyleConstants.Foreground,  c);
+		Document dc = log.getDocument();
+		int len = dc.getLength();
+		try {
+			dc.insertString(len, "[" + threadName + "]: " + str + "\r\n", aset);
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
+		log.setCaretPosition(dc.getLength());
+	}
+
+	public void setVisable(boolean visable) {
+		jFrame.setVisible(visable);
+	}
+
+}

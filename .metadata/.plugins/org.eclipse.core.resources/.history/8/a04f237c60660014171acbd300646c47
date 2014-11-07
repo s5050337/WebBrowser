@@ -1,0 +1,171 @@
+package com.lewtsu.webbrowser;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextPane;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.UIManager;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
+
+public class WebBrowser {
+	
+	private JFrame jFrame;
+	private JButton btnEnter;
+	private JTextPane log1;
+	private JTextPane log2;
+	private GuiWeb web1;
+	private GuiWeb web2;
+	private JScrollPane js1;
+	private JScrollPane js2;
+	
+	public WebBrowser() {
+		initLookAndFeel();
+		initFrame();
+		web1 = new GuiWeb(this, Color.RED, "Thread 1");
+		web2 = new GuiWeb(this, Color.BLUE, "Thread 2");
+		addFrame();
+		setSolution();
+	}
+
+	private void initFrame() {
+		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+		jFrame = new JFrame();
+		jFrame.setTitle("นายธีระวัฒน์ ธีระวัฒนสุข s5050337@kmitl.ac.th - Java Web Browser MultiThread (Network Programming Class Assignment)");
+		jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		jFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		jFrame.setSize(d);
+		btnEnter = new JButton();
+		btnEnter.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		btnEnter.setIcon(new ImageIcon(getClass().getResource("/enter.png")));
+		btnEnter.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				web1.handlerUrl();
+				web2.handlerUrl();
+			}
+		});
+		log1 = new JTextPane();
+		log1.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		log1.setEditable(false);
+		log2 = new JTextPane();
+		log2.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		log2.setEditable(false);
+	}
+	
+	private void addFrame() {
+		js1 = new JScrollPane(log1);
+		js1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+		js1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		js2 = new JScrollPane(log2);
+		js2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+		js2.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+	
+		JPanel jp1 = new JPanel();
+		jp1.add(web1.getComponentUrl());
+		jp1.add(btnEnter);
+		jp1.add(web2.getComponentUrl());
+		JPanel jp2 = new JPanel(new BorderLayout());
+		jp2.add(web1.getComponentAddressBar(), BorderLayout.NORTH);
+		jp2.add(web1.getComponentPane(), BorderLayout.CENTER);
+		JPanel jp3 = new JPanel(new BorderLayout());
+		jp3.add(web2.getComponentAddressBar(), BorderLayout.NORTH);
+		jp3.add(web2.getComponentPane(), BorderLayout.CENTER);
+		JPanel jp4 = new JPanel(new BorderLayout());
+		jp4.add(jp2, BorderLayout.WEST);
+		jp4.add(jp3, BorderLayout.CENTER);
+		JPanel jp5 = new JPanel(new BorderLayout());
+		jp5.add(js1, BorderLayout.WEST);
+		jp5.add(js2, BorderLayout.CENTER);
+		jFrame.add(jp1, BorderLayout.NORTH);
+		jFrame.add(jp4, BorderLayout.CENTER);
+		jFrame.add(jp5, BorderLayout.SOUTH);
+		web1.handlerUrl("www.google.com");
+		web2.handlerUrl("www.google.com");
+	}
+	
+	private void setSolution() {
+		Dimension dTop = new Dimension(jFrame.getWidth() / 3, 50);
+		Dimension dCenter = new Dimension(jFrame.getWidth() / 2 , jFrame.getHeight() / 2);
+		Dimension dDown = new Dimension(jFrame.getWidth() / 2, jFrame.getHeight() / 3);
+		js1.setSize(dDown);
+		js1.setPreferredSize(dDown);
+		js2.setSize(dDown);
+		js2.setPreferredSize(dDown);
+		//web1.getComponentAddressBar().setSize(dTop);
+		//web1.getComponentAddressBar().setPreferredSize(dTop);
+		web1.getComponentPane().setSize(dCenter);
+		web1.getComponentPane().setPreferredSize(dCenter);
+		//web2.getComponentAddressBar().setSize(dTop);
+		//web2.getComponentAddressBar().setPreferredSize(dTop);
+		web2.getComponentPane().setSize(dCenter);
+		web2.getComponentPane().setPreferredSize(dCenter);
+	}
+	
+	public Dimension getFrameDimension() {
+		return jFrame.getSize();
+	}
+	
+	public void setVisable(boolean vis) {
+		jFrame.setVisible(vis);
+	}
+	
+	public void logStatus(String threadName, String str, Color c) {
+		StyleContext sc = StyleContext.getDefaultStyleContext();
+		AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY,  StyleConstants.Foreground,  c);
+		Document dc = log1.getDocument();
+		int len = dc.getLength();
+		try {
+			dc.insertString(len, "[" + threadName + "]: " + str + "\r\n", aset);
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
+		log1.setCaretPosition(dc.getLength());
+	}
+	
+	public void logHeader(String threadName, String str, Color c) {
+		StyleContext sc = StyleContext.getDefaultStyleContext();
+		AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY,  StyleConstants.Foreground,  c);
+		Document dc = log2.getDocument();
+		int len = dc.getLength();
+		try {
+			dc.insertString(len, "[" + threadName + "]: " + str + "\r\n", aset);
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
+		log2.setCaretPosition(dc.getLength());
+	}
+
+	private void initLookAndFeel() {
+		try {
+			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+			UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+		} catch(Exception e){
+			e.printStackTrace();
+		}		
+	}
+	
+	public static void main(String[] args) {
+		//GuiWebBrowser guiWeb = new GuiWebBrowser();
+		//guiWeb.setVisable(true);
+		
+		WebBrowser wb = new WebBrowser();
+		wb.setVisable(true);
+	}
+
+}

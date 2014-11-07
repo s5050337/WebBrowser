@@ -1,0 +1,35 @@
+package com.lewtsu.webbrowser;
+
+import java.awt.Dimension;
+import java.awt.Toolkit;
+
+import javax.swing.JFrame;
+
+public class GuiWebBrowser {
+
+	private JFrame jFrame;
+	private JTextField addressBar;
+
+	public GuiWebBrowser() {
+		jFrame = new JFrame();
+		jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		jFrame.setBounds(0, 0, 800, 800);
+		//jFrame.getContentPane().setLayout(null);
+		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+		jFrame.setLocation((d.width - jFrame.getWidth()) / 2, (d.height - jFrame.getHeight()) / 2);
+		
+		final JTextField addressBar = new JTextField("http://www.teamdev.com/jxbrowser");
+        addressBar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                browser.loadURL(addressBar.getText());
+            }
+        });
+		
+	}
+
+	public void setVisable(boolean visable) {
+		jFrame.setVisible(visable);
+	}
+
+}

@@ -1,0 +1,108 @@
+package com.lewtsu.webbrowser;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.imageio.ImageIO;
+import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.UIManager;
+
+public class GuiTabs {
+
+	private GuiTabs instance;
+	private JFrame jFrame;
+	private JTabbedPane jTabs;
+	private List<GuiWebBrowser> listGui = new LinkedList<GuiWebBrowser>();
+	private JTextArea jta;
+	
+	public GuiTabs() {
+		instance = this;
+		initLookAndFeel();
+		initGui();
+		addTab(new GuiWebBrowser(instance, jTabs.getTabCount()));
+	}
+
+	public void addTab(GuiWebBrowser gui) {
+		jTabs.add(gui.getJPanel());
+		listGui.add(gui);
+		gui.setTabs();
+	}
+
+	public void removeTab(int index) {
+		if(jTabs.getTabCount() == 1)
+			return;
+		jTabs.remove(index);
+		listGui.remove(index);
+		for(int i = 0; i < listGui.size(); ++i) {
+			GuiWebBrowser g = listGui.get(i);
+			g.setIndex(i);
+		}
+	}
+
+	private void initGui() {
+		jFrame = new JFrame();
+		jFrame.setTitle("นายธีระวัฒน์ ธีระวัฒนสุข s5050337@kmitl.ac.th - Java Web Browser (Network Programming Class Assignment 2)");
+		jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		jFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		jFrame.setSize(800, 800);
+		try {
+			jFrame.setIconImage(ImageIO.read(getClass().getResourceAsStream("/favicon.png")));
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
+		jTabs = new JTabbedPane();
+		
+		
+		jta = new JTextArea();
+		jta.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		jta.setForeground(Color.RED);
+		jta.setWrapStyleWord(true);
+		jta.setLineWrap(true);
+		jta.setSize(450, jta.getHeight());
+		JScrollPane js = new JScrollPane(jta);
+		js.setPreferredSize(new Dimension(jta.getWidth(), jta.getHeight()));
+		js.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+		
+		jFrame.add(jTabs, BorderLayout.CENTER);
+		jFrame.add(js, BorderLayout.EAST);
+		jFrame.setLocationRelativeTo(null);
+	}
+
+	private void initLookAndFeel() {
+		try {
+			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+			UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+		} catch(Exception e){
+			e.printStackTrace();
+		}		
+	}
+
+	public void setVisable(boolean visable) {
+		jFrame.setVisible(visable);
+	}
+
+	public JTabbedPane getTabs() {
+		return jTabs;
+	}
+	
+	public void log(int tabIndex, String str) {
+		jta.append("[TAB " + (tabIndex + 1) + "] " + str + "\r\n");
+		jta.setCaretPosition(jta.getText().length());
+	}
+
+	public void log(String str) {
+		jta.append(str + "\r\n");
+		jta.setCaretPosition(jta.getText().length());
+	}
+
+}

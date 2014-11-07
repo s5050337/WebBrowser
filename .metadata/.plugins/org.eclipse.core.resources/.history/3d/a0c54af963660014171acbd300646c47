@@ -1,0 +1,140 @@
+package com.lewtsu.webbrowser;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import com.lewtsu.webbrowser.thread.HandlerUrl;
+import com.teamdev.jxbrowser.chromium.Browser;
+import com.teamdev.jxbrowser.chromium.BrowserFactory;
+import com.teamdev.jxbrowser.chromium.NavigationEntry;
+import com.teamdev.jxbrowser.chromium.events.FinishLoadingEvent;
+import com.teamdev.jxbrowser.chromium.events.LoadAdapter;
+import com.teamdev.jxbrowser.chromium.events.StartLoadingEvent;
+
+public class GuiWeb {
+	
+	private Color color;
+	private JTextField addressBar;
+	private JButton btnBack;
+	private JButton btnForward;
+	private JButton btnReload;
+	private JLabel labelUrl;
+	private Browser browser;
+	private JPanel componentUrl;
+	private JPanel componentAddressBar;
+	private WebBrowser webBrowser;
+	private Thread t;
+	private String tName;
+	
+	public GuiWeb(WebBrowser wb, Color c, String tn) {
+		webBrowser = wb;
+		color = c;
+		tName = tn;
+		initBrowser();
+		initGui();
+	}
+	
+	private void initBrowser() {
+		browser = BrowserFactory.create();
+		browser.addLoadListener(new LoadAdapter() {
+			@Override
+			public void onStartLoadingFrame(StartLoadingEvent event) {
+				if(event.isMainFrame()) {
+					t = new Thread(new HandlerUrl(webBrowser, browser, color, event.getValidatedURL(), tName, false));
+					t.start();
+				}
+			}
+			@Override
+			public void onFinishLoadingFrame(FinishLoadingEvent event) {
+				if(event.isMainFrame()) {
+					webBrowser.logStatus(tName, "TERMINATED", color);
+				}
+			}
+		});
+	}
+	
+	private void initGui() {
+		labelUrl = new JLabel(" URL: ");
+		labelUrl.setFont(new Font("Tahoma", Font.PLAIN, 24));
+		labelUrl.setForeground(Color.BLUE);
+		addressBar = new JTextField();
+		addressBar.setForeground(Color.BLUE);
+		addressBar.setFont(new Font("Tahoma", Font.PLAIN, 24));
+		btnBack = new JButton();
+		btnBack.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		btnBack.setIcon(new ImageIcon(getClass().getResource("/back.png")));
+		btnBack.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				NavigationEntry ne = browser.getNavigationEntryAtIndex(browser.getCurrentNavigationEntryIndex() - 1);
+				t = new Thread(new HandlerUrl(webBrowser, browser, color, ne.getURL(), tName, false));
+				t.start();
+			}
+		});
+		btnForward = new JButton();
+		btnForward.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		btnForward.setIcon(new ImageIcon(getClass().getResource("/forward.png")));
+		btnForward.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+			}
+		});
+		btnReload = new JButton();
+		btnReload.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		btnReload.setIcon(new ImageIcon(getClass().getResource("/reload.png")));
+		btnReload.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+			}
+		});
+		
+		componentUrl = new JPanel();
+		componentUrl.add(btnBack);
+		componentUrl.add(btnForward);
+		componentUrl.add(btnReload);
+		
+		componentAddressBar = new JPanel(new BorderLayout());
+		componentAddressBar.add(labelUrl, BorderLayout.WEST);
+		componentAddressBar.add(addressBar, BorderLayout.CENTER);
+		
+	}
+	
+	public JComponent getComponentUrl() {
+		return componentUrl;
+	}
+	
+	public JComponent getComponentAddressBar() {
+		return componentAddressBar;
+	}
+	
+	public JComponent getComponentPane() {
+		return browser.getView().getComponent();
+	}
+
+	public void handlerUrl() {
+		handlerUrl(addressBar.getText());
+	}
+	
+	public void handlerUrl(String url) {
+		url = url.toLowerCase();
+		if(!(url.startsWith("http://") || url.startsWith("https://")))
+			url = "http://" + url;
+		t = new Thread(new HandlerUrl(webBrowser, browser, color, url, tName, true));
+		t.start();
+	}
+	
+	
+	
+}
